@@ -45,7 +45,6 @@ const Tasks = ({ user }) => {
           signal: controller.signal, // Attach abort signal
         });
         setTasks(response.data);
-        toast.success("Tasks fetched successfully!");
       } catch (error) {
         if (error.name === "CanceledError") {
           console.log("Task fetch aborted.");
