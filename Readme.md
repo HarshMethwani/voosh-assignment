@@ -21,7 +21,9 @@ You can also delete them whenver you feel so.
 
 # Setup
 
-**Step1:** Clone the repository 
+Their are two branches in this repo that I've been working on frontend (client) and backend (server) we will clone the frontend side first 
+
+**Step1:** Clone the repository git clone -b frontend <remote-url>
 
 **Step2:** Do npm install to install dependencies 
 
