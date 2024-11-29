@@ -5,23 +5,20 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/Login.css";
 
-export const Login = ({ setUser }) => {
+export const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
-
     if (!email || !password) {
       toast.error("Email and password are required!");
       return;
     }
 
     try {
-      const user = await signInWithEmail(email, password);
-      setUser(user);
-      localStorage.setItem("token", user.accessToken); 
+      await signInWithEmail(email, password);
       toast.success("Logged in successfully!");
       navigate("/tasks");
     } catch (error) {
@@ -30,11 +27,10 @@ export const Login = ({ setUser }) => {
     }
   };
 
-  const handleLoginWithGoogle = async () => {
+  const handleLoginWithGoogle = async (e) => {
+    e.preventDefault();
     try {
-      const user = await signInWithGoogle();
-      setUser(user);
-      localStorage.setItem("token", user.accessToken); // Store token in localStorage
+       await signInWithGoogle();
       toast.success("Logged in with Google successfully!");
       navigate("/tasks");
     } catch (error) {

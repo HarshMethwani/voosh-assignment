@@ -40,7 +40,7 @@ const App = () => {
 
   return (
     <Router>
-      <NavBar user={user} setUser={setUser} />
+      <NavBar user = {user} setUser={setUser}/>
       <Routes>
         <Route
           path="/login"

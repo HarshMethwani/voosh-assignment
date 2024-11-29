@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api", // Update to your backend's base URL
+  baseURL: "http://ec2-3-110-195-114.ap-south-1.compute.amazonaws.com:5000/api", // Update to your backend's base URL
 });
 
 // Add request interceptor to include Authorization header

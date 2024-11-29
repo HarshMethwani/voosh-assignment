@@ -53,6 +53,7 @@ export const logOut = async () => {
   try {
       await signOut(auth);
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
   } catch (error) {
       console.error("Error signing out:", error);
       throw error;

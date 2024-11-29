@@ -13,6 +13,7 @@ const Navbar = ({ user, setUser }) => {
     await logOut();
     setUser(null); // Reset user state
     navigate("/login");
+    localStorage.removeItem("user"); 
   };
 
   const toggleProfileDropdown = () => {

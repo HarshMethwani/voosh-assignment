@@ -14,16 +14,14 @@ export const SignUp = ({ setUser }) => {
   const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
-
+    e.preventDefault();
     if (password !== confirmPassword) {
       toast.error("Passwords do not match!");
       return;
     }
 
     try {
-      const user = await signUpWithEmail(email, password);
-      setUser(user);
-      localStorage.setItem("token", user.accessToken); // Store token in localStorage
+      await signUpWithEmail(email, password);
       toast.success("Sign-up successful!");
       navigate("/tasks");
     } catch (error) {
@@ -32,11 +30,10 @@ export const SignUp = ({ setUser }) => {
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSignUp = async (e) => {
+    e.preventDefault();
     try {
-      const user = await signInWithGoogle();
-      setUser(user);
-      localStorage.setItem("token", user.accessToken); // Store token in localStorage
+      await signInWithGoogle();
       toast.success("Sign-up with Google successful!");
       navigate("/tasks");
     } catch (error) {
