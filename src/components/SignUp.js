@@ -14,7 +14,6 @@ export const SignUp = ({ setUser }) => {
   const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
-    e.preventDefault();
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match!");

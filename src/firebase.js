@@ -7,13 +7,13 @@ import {initializeApp} from "firebase/app";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAGHQdy8w2qTTPdXejt_f4JMFy_IVvxq3Y",
-  authDomain: "voosh-2aab6.firebaseapp.com",
-  projectId: "voosh-2aab6",
-  storageBucket: "voosh-2aab6.firebasestorage.app",
-  messagingSenderId: "123451329755",
-  appId: "1:123451329755:web:2c5f764a99e7c05d56d0fe",
-  measurementId: "G-QHQTFH5D9J"
+  apiKey: "AIzaSyDTo-mk8ZgVtHkOztsZiQgKFX4RCo9QoXo",
+  authDomain: "fir-f7cba.firebaseapp.com",
+  projectId: "fir-f7cba",
+  storageBucket: "fir-f7cba.firebasestorage.app",
+  messagingSenderId: "855364884349",
+  appId: "1:855364884349:web:31a8a0998a77ef30931e14",
+  measurementId: "G-43E4BY2L66"
 };
 
 // Initialize Firebase
@@ -52,7 +52,7 @@ export const signUpWithEmail = async (email, password) => {
 export const logOut = async () => {
   try {
       await signOut(auth);
-      localStorage.removeItem("token");
+      localStorage.removeItem("user");
   } catch (error) {
       console.error("Error signing out:", error);
       throw error;

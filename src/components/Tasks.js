@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from "react";
+// src/components/Tasks.js
+
+import React, { useState, useEffect, useMemo } from "react";
 import API from "../utils/axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/Tasks.css";
 
-const Tasks = () => {
-  const [tasks, setTasks] = useState([]); // Fetch tasks from backend
+const Tasks = ({ user }) => {
+  // State variables
+  const [tasks, setTasks] = useState([]); // All tasks from backend
   const [newTask, setNewTask] = useState({ title: "", description: "", status: "TODO" });
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // New state variables for search and sort
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState("asc"); // 'asc' or 'desc'
 
   // Open Edit Modal
   const openEditModal = (task) => {
@@ -26,26 +34,63 @@ const Tasks = () => {
 
   // Fetch tasks from the backend
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    const controller = new AbortController();
 
-  const fetchTasks = async () => {
-    try {
-      const response = await API.get("/tasks");
-      setTasks(response.data);
-      toast.success("Tasks fetched successfully!");
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      toast.error("Failed to fetch tasks.");
-    }
-  };
+    const fetchTasks = async () => {
+      if (!user?.token) return; // Skip if user is not logged in
+
+      try {
+        const response = await API.get("/tasks", {
+          headers: { Authorization: `Bearer ${user.token}` },
+          signal: controller.signal, // Attach abort signal
+        });
+        setTasks(response.data);
+        toast.success("Tasks fetched successfully!");
+      } catch (error) {
+        if (error.name === "CanceledError") {
+          console.log("Task fetch aborted.");
+        } else {
+          console.error("Error fetching tasks:", error);
+          toast.error("Failed to fetch tasks.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+
+    // Cleanup: Abort API call if component unmounts or user logs out
+    return () => controller.abort();
+  }, [user]);
+
+  // Compute filtered and sorted tasks
+  const filteredAndSortedTasks = useMemo(() => {
+    // Filter tasks based on search query
+    const filtered = tasks.filter(
+      (task) =>
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Sort tasks based on createdAt
+    const sorted = filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    });
+
+    return sorted;
+  }, [tasks, searchQuery, sortOrder]);
 
   // Add a new task
   const handleAddTask = async () => {
     if (newTask.title.trim() && newTask.description.trim()) {
       try {
-        const response = await API.post("/tasks", newTask);
-        setTasks([...tasks, response.data]);
+        const response = await API.post("/tasks", newTask, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setTasks((prevTasks) => [...prevTasks, response.data]);
         setNewTask({ title: "", description: "", status: "TODO" });
         setIsAddModalOpen(false);
         toast.success("Task added successfully!");
@@ -62,8 +107,10 @@ const Tasks = () => {
   const handleDeleteTask = async (id) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
       try {
-        await API.delete(`/tasks/${id}`);
-        setTasks(tasks.filter((task) => task.id !== id));
+        await API.delete(`/tasks/${id}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
         toast.success("Task deleted successfully!");
       } catch (error) {
         console.error("Error deleting task:", error);
@@ -76,8 +123,12 @@ const Tasks = () => {
   const handleEditTask = async () => {
     if (currentTask.title.trim() && currentTask.description.trim()) {
       try {
-        const response = await API.put(`/tasks/${currentTask.id}`, currentTask);
-        setTasks(tasks.map((task) => (task.id === response.data.id ? response.data : task)));
+        const response = await API.put(`/tasks/${currentTask.id}`, currentTask, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setTasks((prevTasks) =>
+          prevTasks.map((task) => (task.id === response.data.id ? response.data : task))
+        );
         setCurrentTask(null);
         setIsEditModalOpen(false);
         toast.success("Task updated successfully!");
@@ -91,7 +142,12 @@ const Tasks = () => {
   };
 
   // Filter tasks by status
-  const getTasksByStatus = (status) => tasks.filter((task) => task.status === status);
+  const getTasksByStatus = (status) =>
+    filteredAndSortedTasks.filter((task) => task.status === status);
+
+  if (loading) {
+    return <div>Loading tasks...</div>; // Show loading state
+  }
 
   return (
     <div className="tasks-container">
@@ -102,10 +158,19 @@ const Tasks = () => {
         </button>
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search tasks..."
           className="search-input"
-          onChange={(e) => console.log("Search functionality not implemented yet")}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
+        <select
+          className="sort-select"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
+          <option value="asc">Sort by Date: Oldest</option>
+          <option value="desc">Sort by Date: Newest</option>
+        </select>
       </div>
 
       {/* Add Task Modal */}
@@ -195,7 +260,7 @@ const Tasks = () => {
               <strong>Status:</strong> {currentTask.status.replace("_", " ")}
             </p>
             <p>
-              <strong>Created At:</strong> {currentTask.createdAt}
+              <strong>Created At:</strong> {new Date(currentTask.createdAt).toLocaleString()}
             </p>
             <div className="modal-actions">
               <button onClick={() => setIsViewModalOpen(false)} className="btn close-btn">
@@ -215,7 +280,9 @@ const Tasks = () => {
               <div className="task-card" key={task.id}>
                 <h4>{task.title}</h4>
                 <p>{task.description}</p>
-                <p className="created-at">Created at: {task.createdAt}</p>
+                <p className="created-at">
+                  Created at: {new Date(task.createdAt).toLocaleString()}
+                </p>
                 <div className="task-actions">
                   <button className="btn delete-btn" onClick={() => handleDeleteTask(task.id)}>
                     Delete

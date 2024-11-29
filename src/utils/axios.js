@@ -1,16 +1,20 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api", // Replace with your backend URL
+  baseURL: "http://localhost:5000/api", // Update to your backend's base URL
 });
 
-// Add Authorization header for Firebase token
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token"); // Store your Firebase token in localStorage
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Add request interceptor to include Authorization header
+API.interceptors.request.use(
+  (config) => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const { token } = JSON.parse(storedUser);
+      config.headers.Authorization = `Bearer ${token}`; // Include the token in headers
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default API;
