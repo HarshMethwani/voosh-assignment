@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://ec2-3-110-195-114.ap-south-1.compute.amazonaws.com/api", 
+  baseURL: "https://voosh-assignment-1-mi7o.onrender.com/api", 
 });
 
 // Add request interceptor to include Authorization header
