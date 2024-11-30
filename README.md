@@ -30,3 +30,12 @@ All file uploads are being handled well and are stored in a **uploads** director
 
 **Step 5:** Use nodemon server.js to start the server.
 
+# Unit Tests
+
+To Do the unit testing of the application 
+
+**Step 1:** Create a singleton pattern and mock prisma  ( To create a singelton file you may copy the code from [here](https://www.prisma.io/docs/orm/prisma-client/testing/unit-testing)  create a singleton file and initialize the client rest tests are written in __tests__ folder
+
+**Step 2:**  Run npm test
+
+
