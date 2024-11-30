@@ -12,5 +12,6 @@ app.use(bodyParser.json());
 
 app.use('/api/tasks', taskRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.get('/test', (req, res) => res.send('Hello World!'));   
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
